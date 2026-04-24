@@ -1,0 +1,4 @@
+.terraform*
+aztfexport*
+provider.tf
+terraform.tfstate*

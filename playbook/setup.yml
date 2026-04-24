@@ -4,3 +4,5 @@
     - role: zsh
       vars:
         zsh_theme: "robbyrussell"
+    - role: docker
+      
