@@ -1,0 +1,55 @@
+- name: Install dependencies (Debian/Ubuntu)
+  become: true
+  apt:
+    name:
+      - zsh
+      - git
+      - curl
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install dependencies (RedHat)
+  become: true
+  yum:
+    name:
+      - zsh
+      - git
+      - curl
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Set zsh as default shell
+  become: true
+  user:
+    name: "{{ zsh_user }}"
+    shell: /usr/bin/zsh
+
+- name: Check Oh My Zsh installation
+  stat:
+    path: "{{ zsh_home }}/.oh-my-zsh"
+  register: omz_installed
+
+- name: Install Oh My Zsh
+  become: false
+  shell: |
+    RUNZSH=no CHSH=no sh -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  args:
+    creates: "{{ zsh_home }}/.oh-my-zsh"
+  when: not omz_installed.stat.exists
+
+- name: Ensure .zshrc exists
+  copy:
+    src: "{{ zsh_home }}/.oh-my-zsh/templates/zshrc.zsh-template"
+    dest: "{{ zsh_home }}/.zshrc"
+    remote_src: true
+    owner: "{{ zsh_user }}"
+    group: "{{ zsh_user }}"
+  when: not omz_installed.stat.exists
+
+- name: Set Zsh theme
+  lineinfile:
+    path: "{{ zsh_home }}/.zshrc"
+    regexp: '^ZSH_THEME='
+    line: 'ZSH_THEME="{{ zsh_theme }}"'

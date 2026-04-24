@@ -1,0 +1,6 @@
+- name: Setup dev environment
+  hosts: all
+  roles:
+    - role: zsh
+      vars:
+        zsh_theme: "robbyrussell"
